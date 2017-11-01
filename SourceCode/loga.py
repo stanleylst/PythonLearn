@@ -4,7 +4,7 @@ import time
 import threading
 import queue
 from collections import namedtuple
-from watchdog.events import FileSys
+from watchdog.events import FileSystemEventHandler
 
 matcher = re.compile(r'(?P<remote>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \[(?P<time>.*)\] "(?P<request>.*)" (?P<status>\d+) (?P<length>\d+) "(?P<url>.*)" "(?P<ua>.*)" .*')
 Request = namedtuple('Request',['method','url','version'])
@@ -17,7 +17,20 @@ mapping = {
 }
 
 
-class  Loader()
+class  Loader(FileSystemEventHandler):
+    def __init__(self,path):
+        self.path = path
+        self.q = queue.Queue()
+        self.f = open(path)
+
+    def on_modified(self,event):
+        if event.src_path == self.path:
+            for item in read(self.f):
+                self.q.put(item)
+
+    def source(self):
+        while True:
+            yield self.q.get()
 
 
 # 数据提取
@@ -129,7 +142,14 @@ def status_handler(items):
 
 if __name__ == '__main__':
     import sys
-    register, start = dispatcher(load(sys.argv[1]))
+    import os
+    from watchdog.observers import Observer
+    
+    handler = Loader(sys.argv[1])
+    observer = Observer()
+    observer.schedule(handler,os.path.dirname(sys.argv[1]),recursive=False)
+    # register, start = dispatcher(load(sys.argv[1]))
+    register, start = dispatcher(handler.source())
     register(null_handler, 5, 10)
     register(status_handler,5,10)
     start()

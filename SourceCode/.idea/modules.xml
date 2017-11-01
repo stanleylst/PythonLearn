@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/SourceCode.iml" filepath="$PROJECT_DIR$/SourceCode.iml" />
+      <module fileurl="file://$PROJECT_DIR$/local-py3.5/local-py3.5.iml" filepath="$PROJECT_DIR$/local-py3.5/local-py3.5.iml" />
     </modules>
   </component>
 </project>
